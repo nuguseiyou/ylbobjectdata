@@ -46,7 +46,6 @@ public class ProductController extends BaseController {
                         model.addAttribute("accountMoney",account.getAvailableMoney());
                     }
                 }
-
                 //该产品最近投资记录
                 List<PhoneBid> phoneBids = investService.queryProductBidRecord(pid);
                 model.addAttribute("phoneBids", phoneBids);
@@ -61,6 +60,7 @@ public class ProductController extends BaseController {
             return "err";
         }
     }
+
     //分类 查询更多产品
     @GetMapping("/product/list")
     public String productAll(@RequestParam("ptype") Integer productType,
