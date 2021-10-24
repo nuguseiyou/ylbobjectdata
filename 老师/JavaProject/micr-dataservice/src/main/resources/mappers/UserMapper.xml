@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bjpowernode.dataservice.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="com.bjpowernode.entity.User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="login_password" jdbcType="VARCHAR" property="loginPassword" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="id_card" jdbcType="VARCHAR" property="idCard" />
+    <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+    <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime" />
+    <result column="header_image" jdbcType="VARCHAR" property="headerImage" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, phone, login_password, name, id_card, add_time, last_login_time, header_image
+  </sql>
+
+    <!--统计注册用户总数-->
+  <select id="selectRegisterUsers" resultType="int">
+    select count(phone) as registerUsers from u_user
+  </select>
+
+  <!--查询手机号对应的用户-->
+  <select id="selectPhone" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from u_user
+    where phone=#{phone}
+  </select>
+
+  <!--登陆-->
+  <select id="selectLogin" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from u_user
+    where phone = #{phone} and login_password=#{mima}
+  </select>
+
+
+    <!--注册用户，获取id-->
+  <insert id="insertUserReturnId">
+    insert into u_user(phone,login_password,add_time)
+    values(#{phone},#{loginPassword},#{addTime})
+
+    <selectKey keyColumn="newId" keyProperty="id" resultType="int" order="AFTER">
+      select LAST_INSERT_ID() as newId
+    </selectKey>
+
+  </insert>
+
+  <!--更新实名认证的信息-->
+  <update id="updateRealName">
+    update u_user set name=#{name},id_card=#{idCard} where phone=#{phone}
+  </update>
+
+  <update id="updateLoginTime">
+    update u_user set last_login_time = #{loginTime} where id =#{id}
+  </update>
+
+</mapper>

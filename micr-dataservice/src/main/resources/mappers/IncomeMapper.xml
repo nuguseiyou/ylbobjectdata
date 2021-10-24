@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nuguseiyou.dataservice.mapper.IncomeMapper">
+  <resultMap id="BaseResultMap" type="com.nuguseiyou.model.Income">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="product_id" jdbcType="INTEGER" property="productId" />
+    <result column="bid_id" jdbcType="INTEGER" property="bidId" />
+    <result column="bid_money" jdbcType="DECIMAL" property="bidMoney" />
+    <result column="income_date" jdbcType="DATE" property="incomeDate" />
+    <result column="income_money" jdbcType="DECIMAL" property="incomeMoney" />
+    <result column="income_status" jdbcType="INTEGER" property="incomeStatus" />
+  </resultMap>
+    <resultMap id="UserIncomeMap" type="com.nuguseiyou.model.ext.UserIncome">
+        <result column="product_name" property="productName" />
+        <result column="bid_money" jdbcType="DECIMAL" property="bidMoney" />
+        <result column="income_date" jdbcType="DATE" property="incomeDate" />
+        <result column="income_money" jdbcType="DECIMAL" property="incomeMoney" />
+        <result column="income_status" jdbcType="INTEGER" property="incomeStatus" />
+    </resultMap>
+  <sql id="Base_Column_List">
+    id, uid, product_id, bid_id, bid_money, income_date, income_money, income_status
+  </sql>
+
+    <!--查询用户最近的收益记录-->
+  <select id="selectUserIncomeRecord" resultMap="UserIncomeMap">
+      select inc.income_date,inc.income_money,pro.product_name,inc.bid_money,inc.income_status
+      from b_income_record inc LEFT JOIN b_product_info pro
+      on inc.product_id = pro.id
+      where inc.uid = #{uid}
+      ORDER BY inc.income_date DESC
+      limit #{offset},#{rows}
+  </select>
+
+  <!--用户最近收益记录数量-->
+  <select id="selectUserIncomeRecordCount" resultType="integer">
+      select count(id)
+      from b_income_record
+      where uid = #{uid}
+  </select>
+    <!--生成投资收益记录-->
+    <insert id="insertIncomeRecord">
+        insert into b_income_record (uid, product_id, bid_id, bid_money, income_date, income_money, income_status)
+        values(#{uid},#{productId},#{bidId},#{bidMoney},#{incomeDate},#{incomeMoney},#{incomeStatus})
+    </insert>
+    <!--查询昨天到期的收益记录-->
+    <select id="selectExpireIncomeRecord" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"></include>
+        from b_income_record
+        where income_date = DATE_SUB(CURDATE(),INTERVAL 1 DAY) and income_status = #{investIncomeNotReturn}
+    </select>
+
+    <!--修改收益记录的收益状态-->
+    <update id="updateIncomeStatus">
+        update b_income_record set income_status = #{investIncomeReturn}
+        where id = #{id}
+    </update>
+</mapper>

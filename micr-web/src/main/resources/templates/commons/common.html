@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<script type="text/javascript" th:inline="javascript">
+    var contextPath = [[${#request.getContextPath()}]]
+    $(function () {
+        $(".btn-login").on("click",function () {
+            //alert(window.location.href)
+            var returnUrl = window.location.href;
+            window.location.href = contextPath + "/user/page/login?returnUrl=" + returnUrl;
+        })
+    })
+</script>
+</body>
+</html>

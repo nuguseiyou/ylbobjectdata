@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: micr-web
+  thymeleaf:
+    cache: false
+  redis:
+    host: localhost
+    port: 6379
+#服务器端口
+server:
+  port: 8000
+  servlet:
+    context-path: /ylb
+
+#dubbo
+dubbo:
+  registry:
+    address: zookeeper://localhost:2181
+  scan:
+    base-packages: com.bjpowernode.micrweb
+  consumer:
+    check: false
+    timeout: 10000
+    retries: 0
+
+jdwx:
+  sms:
+    url: https://way.jd.com/chuangxin/dxjk
+    content: 【盈利宝】您的验证码是%s,请勿泄露
+    appkey: 3680fa919b771148da626bbcbd459475
+  realname:
+    url: https://way.jd.com/youhuoBeijing/test
+    appkey: 3680fa919b771148da626bbcbd459475
+#访问的支付服务快钱的接口
+micrPay:
+  kqUrl: http://localhost:9000/pay/kq/recvKqRequestForWeb
+  kqOrderUrl: http://localhost:9000/pay/kq/queryOrderForWeb

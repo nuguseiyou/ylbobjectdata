@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nuguseiyou.dataservice.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.nuguseiyou.model.User">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="login_password" jdbcType="VARCHAR" property="loginPassword"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="id_card" jdbcType="VARCHAR" property="idCard"/>
+        <result column="add_time" jdbcType="TIMESTAMP" property="addTime"/>
+        <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime"/>
+        <result column="header_image" jdbcType="VARCHAR" property="headerImage"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+      id, phone, login_password, name, id_card, add_time, last_login_time, header_image
+    </sql>
+
+    <!--总注册用户量-->
+    <select id="selectRegisterUsers" resultType="int">
+      select count(id) from u_user
+    </select>
+    <!--查询手机号是否已经注册-->
+    <select id="selectPhone" resultMap="BaseResultMap">
+      select <include refid="Base_Column_List"></include>
+      from u_user
+      where phone = #{phone}
+    </select>
+
+    <!--创建一个用户-->
+    <insert id="insertUser">
+        insert into u_user (phone,login_password,add_time)
+        values(#{phone},#{loginPassword},#{addTime})
+        <selectKey order="AFTER" resultType="int" keyProperty="id" keyColumn="newId">
+            select LAST_INSERT_ID() as newId
+        </selectKey>
+    </insert>
+    <!--用户实名认证后 修改用户信息-->
+    <update id="updateUserInfo">
+        update u_user set name = #{name},id_card= #{idCard}
+        where phone = #{phone}
+    </update>
+
+    <!--用户登录-->
+    <select id="selectUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"></include>
+        from u_user
+        where phone = #{phone} and login_password = #{mima}
+    </select>
+
+    <!--修改用户最后一次的登陆时间-->
+    <update id="updateUserLastLoginTime">
+        update u_user set last_login_time = #{lastLoginTime}
+        where id = #{id}
+    </update>
+</mapper>

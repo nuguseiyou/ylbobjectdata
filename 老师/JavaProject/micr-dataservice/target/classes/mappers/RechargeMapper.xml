@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bjpowernode.dataservice.mapper.RechargeMapper">
+    <resultMap id="BaseResultMap" type="com.bjpowernode.entity.Recharge">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+        <result column="recharge_no" jdbcType="VARCHAR" property="rechargeNo"/>
+        <result column="recharge_status" jdbcType="INTEGER" property="rechargeStatus"/>
+        <result column="recharge_money" jdbcType="DECIMAL" property="rechargeMoney"/>
+        <result column="recharge_time" jdbcType="TIMESTAMP" property="rechargeTime"/>
+        <result column="recharge_desc" jdbcType="VARCHAR" property="rechargeDesc"/>
+        <result column="channel" jdbcType="VARCHAR" property="channel"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, uid, recharge_no, recharge_status, recharge_money, recharge_time, recharge_desc, 
+    channel
+  </sql>
+
+
+
+  <!--用户的充值记录-->
+    <select id="selectRechargesUid" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from b_recharge_record
+        where uid=#{uid} order by id desc
+        limit #{offSet} , #{rows}
+    </select>
+
+    <!--用户充值记录总数-->
+    <select id="selectCountUid" resultType="int">
+      select count(id) as ct from b_recharge_record
+      where uid=#{uid}
+    </select>
+
+  <!--根据订单号，查询充值记录，并上锁-->
+    <select id="selectRechargeNoLock" resultMap="BaseResultMap">
+      select <include refid="Base_Column_List"></include>
+      from b_recharge_record
+      where recharge_no=#{orderId}
+      for update
+    </select>
+
+
+    <!--根据订单号，查询充值记录-->
+    <select id="selectByRechargeNo" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"></include>
+        from b_recharge_record
+        where recharge_no = #{rechargeNo}
+    </select>
+
+    <insert id="insert">
+        insert into b_recharge_record(
+        uid, recharge_no, recharge_status,
+        recharge_money, recharge_time, recharge_desc,channel)
+        values(#{uid},#{rechargeNo},#{rechargeStatus},#{rechargeMoney},
+        #{rechargeTime},#{rechargeDesc},#{channel})
+  </insert>
+
+    <!--更新充值记录的状态-->
+    <update id="updateRechargeStatus">
+        update b_recharge_record set recharge_status=#{newStatus} where id=#{id}
+    </update>
+    <!--更新充值记录的状态-->
+    <update id="updateRechargeStatusByRechargeNo">
+         update b_recharge_record set recharge_status=#{newStatus} where recharge_no=#{rechargeNo}
+    </update>
+</mapper>

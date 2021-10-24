@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bjpowernode.dataservice.mapper.IncomeMapper">
+    <resultMap id="BaseResultMap" type="com.bjpowernode.entity.Income">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+        <result column="prod_id" jdbcType="INTEGER" property="loanId"/>
+        <result column="bid_id" jdbcType="INTEGER" property="bidId"/>
+        <result column="bid_money" jdbcType="DECIMAL" property="bidMoney"/>
+        <result column="income_date" jdbcType="DATE" property="incomeDate"/>
+        <result column="income_money" jdbcType="DECIMAL" property="incomeMoney"/>
+        <result column="income_status" jdbcType="INTEGER" property="incomeStatus"/>
+    </resultMap>
+
+    <resultMap id="UserInomeMap" type="com.bjpowernode.entity.ext.UserIncome">
+        <result column="product_name" property="proudctName"/>
+        <result column="bid_money" jdbcType="DECIMAL" property="bidMoney"/>
+        <result column="income_date" jdbcType="DATE" property="incomeDate"/>
+        <result column="income_money" jdbcType="DECIMAL" property="incomeMoney"/>
+        <result column="income_status" jdbcType="INTEGER" property="incomeStatus"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, uid, prod_id, bid_id, bid_money, income_date, income_money, income_status
+  </sql>
+
+    <!--用户收益记录集合-->
+    <select id="selectIncomeListUid" resultMap="UserInomeMap">
+    SELECT
+        income.bid_money,
+        income.income_money,
+        income.income_date,
+        income.income_status,
+        product.product_name
+    FROM
+        b_income_record income
+    LEFT JOIN b_product_info product ON income.prod_id = product.id
+    WHERE
+        income.uid = #{uid}
+    ORDER BY
+        income.id DESC
+    LIMIT #{offSet},#{rows}
+
+  </select>
+    <select id="selectIncomeCountUid" resultType="java.lang.Integer">
+    select count(id) as ct from  b_income_record where uid = #{uid}
+  </select>
+
+    <!--要执行收益返还的记录-->
+    <select id="selectExipreIncome" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"></include>
+        FROM
+        b_income_record
+        WHERE
+        income_status = 0
+        AND income_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+        ORDER BY id
+    </select>
+
+    <!--创建收益记录-->
+    <insert id="insert">
+        insert into b_income_record(uid, prod_id, bid_id, bid_money, income_date, income_money, income_status)
+        values(#{uid},#{loanId},#{bidId},#{bidMoney},#{incomeDate},#{incomeMoney},#{incomeStatus})
+    </insert>
+
+    <!--更新状态为1-->
+    <update id="updateStatusBack">
+        update b_income_record set income_status = 1 where id = #{id}
+    </update>
+
+</mapper>

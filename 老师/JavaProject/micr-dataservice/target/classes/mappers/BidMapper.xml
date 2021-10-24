@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bjpowernode.dataservice.mapper.BidMapper">
+  <resultMap id="BaseResultMap" type="com.bjpowernode.entity.Bid">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="prod_id" jdbcType="INTEGER" property="loanId" />
+    <result column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="bid_money" jdbcType="DECIMAL" property="bidMoney" />
+    <result column="bid_time" jdbcType="TIMESTAMP" property="bidTime" />
+    <result column="bid_status" jdbcType="INTEGER" property="bidStatus" />
+  </resultMap>
+
+  <!--定义resultMap-->
+  <resultMap id="phoneBidMap" type="com.bjpowernode.entity.ext.PhoneBid">
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="bid_money" jdbcType="DECIMAL" property="money" />
+    <result column="bid_time" jdbcType="TIMESTAMP" property="time" />
+  </resultMap>
+
+  <resultMap id="productNameBidMap" type="com.bjpowernode.entity.ext.ProudctNameBid">
+    <result column="product_name" jdbcType="VARCHAR" property="productName" />
+    <result column="bid_money" jdbcType="DECIMAL" property="bidMoney" />
+    <result column="bid_time" jdbcType="TIMESTAMP" property="bidTime" />
+    <result column="bid_status" jdbcType="INTEGER" property="bidStatus" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, prod_id, uid, bid_money, bid_time, bid_status
+  </sql>
+
+
+    <!--总计投资金额-->
+  <select id="selectSumInvestMoney" resultType="java.math.BigDecimal">
+    select sum(bid_money) as sumInvestMoney from b_bid_info
+  </select>
+
+  <!--产品的最近投资记录-->
+  <select id="selectBidsProduct" resultMap="phoneBidMap">
+    select bid.bid_time,bid_money,u.phone
+    from b_bid_info bid inner join  u_user  u
+    where  bid.prod_id= #{productId} and bid.uid = u.id
+    order by bid.id desc
+    limit 0,#{rows}
+  </select>
+
+
+  <!--某个用户所有的投资记录-->
+  <select id="selectBidUid" resultMap="productNameBidMap">
+    SELECT
+      product.product_name,
+      bid.bid_money,
+      bid.bid_time,
+      bid.bid_status
+    FROM
+        b_bid_info bid
+    LEFT JOIN b_product_info product ON bid.prod_id = product.id
+    WHERE
+        bid.uid = #{uid}
+    ORDER BY
+        bid.id DESC
+    LIMIT #{offSet}, #{rows}
+
+  </select>
+  <!--查询用户投资记录的总数-->
+  <select id="selectBidCountUid" resultType="java.lang.Integer">
+    select count(id) as ct from b_bid_info where uid = #{uid}
+  </select>
+
+  <!--产品成功的投资记录-->
+  <select id="selectBidListProductId" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from b_bid_info
+    where prod_id=#{productId} and bid_status = 1
+    order by id
+  </select>
+
+
+    <!--创建投资记录-->
+  <insert id="insertBidInfo">
+    insert into b_bid_info(prod_id, uid, bid_money, bid_time, bid_status)
+    values(#{loanId},#{uid},#{bidMoney},#{bidTime},#{bidStatus})
+  </insert>
+</mapper>

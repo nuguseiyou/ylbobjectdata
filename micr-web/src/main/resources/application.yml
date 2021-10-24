@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: micr-web
+  thymeleaf:
+    cache: false
+server:
+  servlet:
+    context-path: /ylb
+
+#dubbo
+dubbo:
+  registry:
+    address: zookeeper://localhost:2181
+  scan:
+    base-packages: com.nuguseiyou.micrweb
+  consumer:
+    timeout: 100000
+    #retries: 0
+    check: false
+
+jdwx:
+  sms:
+    url: https://way.jd.com/chuangxin/dxjk
+    content: 【xibalaoma】,您的验证码为%s,请勿泄露,时效为三分钟
+    appkey: d31c8363adfc3caba9c83fdf093cf373
+  realname:
+    url: https://way.jd.com/youhuoBeijing/test
+    appkey: d31c8363adfc3caba9c83fdf093cf373
+
+#web服务访问pay服务的url
+micrPay:
+  kqUrl: http://localhost:9000/pay/kqRuquestUrl
+  kqQueryUrl: http://localhost:9000/pay/kq/kqQueryUrl

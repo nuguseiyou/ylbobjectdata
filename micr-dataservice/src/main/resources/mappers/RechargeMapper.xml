@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nuguseiyou.dataservice.mapper.RechargeMapper">
+    <resultMap id="BaseResultMap" type="com.nuguseiyou.model.Recharge">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+        <result column="recharge_no" jdbcType="VARCHAR" property="rechargeNo"/>
+        <result column="recharge_status" jdbcType="INTEGER" property="rechargeStatus"/>
+        <result column="recharge_money" jdbcType="DECIMAL" property="rechargeMoney"/>
+        <result column="recharge_time" jdbcType="TIMESTAMP" property="rechargeTime"/>
+        <result column="recharge_desc" jdbcType="VARCHAR" property="rechargeDesc"/>
+        <result column="channel" jdbcType="VARCHAR" property="channel"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, uid, recharge_no, recharge_status, recharge_money, recharge_time, recharge_desc, 
+    channel
+  </sql>
+
+
+    <!--查询用户最近的充值记录-->
+    <select id="selectUserRechargeRecord" resultMap="BaseResultMap">
+        select recharge_status,recharge_money,recharge_time,recharge_desc
+        from b_recharge_record
+        where uid = #{uid}
+        ORDER BY recharge_time DESC
+        limit #{offset},#{rows}
+    </select>
+    <!--查询用户充值记录总数-->
+    <select id="selectUserRechargeRecordCount" resultType="int">
+        select count(id)
+        from b_recharge_record
+        where uid = #{uid}
+  </select>
+
+    <!--创建用户充值记录-->
+    <insert id="insertRecharge">
+        insert into b_recharge_record(uid, recharge_no, recharge_status, recharge_money, recharge_time, recharge_desc,
+     channel)
+        values(#{uid},#{rechargeNo},#{rechargeStatus},#{rechargeMoney},#{rechargeTime},#{rechargeDesc},#{channel})
+    </insert>
+    <!--查询充值订单是否存在-->
+    <select id="selectRecharge" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"></include>
+        from b_recharge_record
+        where recharge_no = #{orderId}
+        for update
+    </select>
+
+    <!--查询是否有异步通知处理的结果-->
+    <select id="selectRechargeStatus" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"></include>
+        from b_recharge_record
+        where recharge_no = #{orderId}
+    </select>
+    <!--修改充值记录的充值状态为1  充值成功-->
+
+    <update id="updateRechargeStatus">
+        update b_recharge_record set recharge_status = #{userRechargeTrue}
+        where recharge_no = #{orderId}
+    </update>
+</mapper>

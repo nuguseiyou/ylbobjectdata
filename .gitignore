@@ -1,0 +1,7 @@
+# Project exclude paths
+/kuaiqian-demo/target/
+/micr-api/target/
+/micr-common/target/
+/micr-dataservice/target/
+/micr-pay/target/
+/micr-task/target/

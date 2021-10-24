@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+</head>
+<body>
+    <!--#request HttpServletRequest-->
+    <script type="text/javascript" th:inline="javascript">
+        //上下文访问路径
+        let contextPath = [[${#request.getContextPath()}]]
+
+        //按钮单击
+        $(function(){
+            $(".btn-login").on("click",function(){
+                let url = window.location.href;
+                window.location.href = contextPath + "/user/page/login?returnUrl="+url;
+
+            })
+        })
+
+    </script>
+</body>
+</html>

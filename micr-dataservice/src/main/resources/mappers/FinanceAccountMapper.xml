@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nuguseiyou.dataservice.mapper.FinanceAccountMapper">
+    <resultMap id="BaseResultMap" type="com.nuguseiyou.model.FinanceAccount">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+        <result column="available_money" jdbcType="DECIMAL" property="availableMoney"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, uid, available_money
+  </sql>
+
+    <!--根据用户主键id查询一个资金表对象-->
+    <select id="selectAccount" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from u_finance_account
+        where uid = #{uid}
+    </select>
+    <!--查询资金账户并上锁-->
+    <select id="selectMoneyForUpdate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from u_finance_account
+        where uid = #{uid} for update
+    </select>
+
+    <insert id="insert">
+        insert into u_finance_account (uid, available_money)
+        values (#{uid,jdbcType=INTEGER}, #{availableMoney,jdbcType=DECIMAL})
+    </insert>
+
+    <!--扣除用户资金表余额   余额 - 产品投资金额-->
+    <update id="updateAvailable">
+        update u_finance_account set available_money = available_money - #{bidMoney}
+        where uid = #{userId} and (available_money - #{bidMoney} >= 0)
+    </update>
+    <!--将产品到期收益返还到用户资金余额-->
+    <update id="updateAvailableForIncomeReturn">
+        update u_finance_account set available_money = available_money + #{incomeMoney} + #{bidMoney}
+        where uid = #{uid}
+    </update>
+    <!--将用户充值的金额更新到用户余额中-->
+    <update id="updateUserAvaliableMoney">
+        update u_finance_account set available_money = available_money + #{rechargeMoney}
+        where uid = #{uid}
+    </update>
+</mapper>
